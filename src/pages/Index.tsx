@@ -4,18 +4,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { AI_MODELS } from '@/config/ai-models';
+import CreateProjectForm from '@/components/CreateProjectForm';
+import SettingsDialog from '@/components/SettingsDialog';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('create');
   const [language, setLanguage] = useState('ru');
   const [aiModel, setAiModel] = useState(AI_MODELS[0].id);
-
-  const stats = [
-    { label: 'Проектов создано', value: '127', icon: 'FolderGit2', color: 'text-primary' },
-    { label: 'Строк кода', value: '45.2K', icon: 'Code2', color: 'text-secondary' },
-    { label: 'Ошибок исправлено', value: '89', icon: 'Bug', color: 'text-green-500' },
-    { label: 'Время экономии', value: '156ч', icon: 'Clock', color: 'text-orange-500' },
-  ];
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const tabs = [
     { id: 'create', label: 'Создание', icon: 'Plus' },
@@ -82,7 +78,7 @@ const Index = () => {
                 </optgroup>
               </select>
 
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" onClick={() => setSettingsOpen(true)}>
                 <Icon name="Settings" size={18} />
               </Button>
             </div>
@@ -101,25 +97,9 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 animate-fade-in">
-          {stats.map((stat, index) => (
-            <Card key={index} className="hover-scale cursor-pointer">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
-                    <p className="text-3xl font-bold">{stat.value}</p>
-                  </div>
-                  <div className={`w-12 h-12 rounded-xl bg-muted flex items-center justify-center ${stat.color}`}>
-                    <Icon name={stat.icon} size={24} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
 
+      <main className="container mx-auto px-4 py-8">
         <div className="animate-scale-in">
           <div className="flex flex-wrap gap-2 mb-8 border-b border-border">
             {tabs.map((tab) => (
@@ -140,21 +120,7 @@ const Index = () => {
 
           <div className="animate-fade-in">
             {activeTab === 'create' && (
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center py-12">
-                    <Icon name="Plus" size={48} className="mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">Создание проекта</h3>
-                    <p className="text-muted-foreground mb-6">
-                      Опишите проект — агент сгенерирует полную структуру и код
-                    </p>
-                    <Button size="lg">
-                      <Icon name="Sparkles" className="mr-2" size={18} />
-                      Начать создание
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <CreateProjectForm aiModel={aiModel} language={language} />
             )}
 
             {activeTab === 'analyze' && (
