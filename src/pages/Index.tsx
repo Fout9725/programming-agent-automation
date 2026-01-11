@@ -1,21 +1,14 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
-import CreateProject from '@/components/CreateProject';
-import AnalyzeCode from '@/components/AnalyzeCode';
-import ModifyProject from '@/components/ModifyProject';
-import GitHubIntegration from '@/components/GitHubIntegration';
-import TestingPanel from '@/components/TestingPanel';
-import DocumentationPanel from '@/components/DocumentationPanel';
+import { AI_MODELS } from '@/config/ai-models';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('create');
   const [language, setLanguage] = useState('ru');
-  const [aiModel, setAiModel] = useState('gpt4');
+  const [aiModel, setAiModel] = useState(AI_MODELS[0].id);
 
   const stats = [
     { label: 'Проектов создано', value: '127', icon: 'FolderGit2', color: 'text-primary' },
@@ -24,11 +17,22 @@ const Index = () => {
     { label: 'Время экономии', value: '156ч', icon: 'Clock', color: 'text-orange-500' },
   ];
 
+  const tabs = [
+    { id: 'create', label: 'Создание', icon: 'Plus' },
+    { id: 'analyze', label: 'Анализ', icon: 'Search' },
+    { id: 'modify', label: 'Модификация', icon: 'Wrench' },
+    { id: 'github', label: 'GitHub', icon: 'Github' },
+    { id: 'test', label: 'Тестирование', icon: 'CheckCircle' },
+    { id: 'docs', label: 'Документация', icon: 'FileText' },
+  ];
+
+  const selectedModel = AI_MODELS.find(m => m.id === aiModel) || AI_MODELS[0];
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border/40 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
                 <Icon name="Sparkles" className="text-white" size={20} />
@@ -40,36 +44,60 @@ const Index = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ru">🇷🇺 Русский</SelectItem>
-                  <SelectItem value="en">🇬🇧 English</SelectItem>
-                  <SelectItem value="zh">🇨🇳 中文</SelectItem>
-                  <SelectItem value="es">🇪🇸 Español</SelectItem>
-                </SelectContent>
-              </Select>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="px-3 py-2 rounded-lg border border-input bg-background text-sm"
+              >
+                <option value="ru">🇷🇺 Русский</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="zh">🇨🇳 中文</option>
+                <option value="es">🇪🇸 Español</option>
+              </select>
 
-              <Select value={aiModel} onValueChange={setAiModel}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="gpt4">GPT-4 Turbo</SelectItem>
-                  <SelectItem value="gpt3">GPT-3.5</SelectItem>
-                  <SelectItem value="claude">Claude 3</SelectItem>
-                  <SelectItem value="gemini">Gemini Pro</SelectItem>
-                  <SelectItem value="mixtral">Mixtral 8x7B</SelectItem>
-                </SelectContent>
-              </Select>
+              <select
+                value={aiModel}
+                onChange={(e) => setAiModel(e.target.value)}
+                className="px-3 py-2 rounded-lg border border-input bg-background text-sm min-w-[200px]"
+              >
+                <optgroup label="Pro модели">
+                  {AI_MODELS.filter(m => m.category === 'pro').map(model => (
+                    <option key={model.id} value={model.id}>{model.name}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="Стандартные">
+                  {AI_MODELS.filter(m => m.category === 'standard').map(model => (
+                    <option key={model.id} value={model.id}>{model.name}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="Специализированные">
+                  {AI_MODELS.filter(m => m.category === 'specialized').map(model => (
+                    <option key={model.id} value={model.id}>{model.name}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="Бесплатные">
+                  {AI_MODELS.filter(m => m.category === 'free').map(model => (
+                    <option key={model.id} value={model.id}>{model.name}</option>
+                  ))}
+                </optgroup>
+              </select>
 
               <Button variant="outline" size="icon">
                 <Icon name="Settings" size={18} />
               </Button>
             </div>
           </div>
+          
+          {selectedModel && (
+            <div className="mt-3 p-2 bg-muted rounded-lg text-xs">
+              <span className="font-medium">{selectedModel.provider}</span> • {selectedModel.description}
+              {selectedModel.specialties && (
+                <span className="ml-2 text-muted-foreground">
+                  • {selectedModel.specialties.join(', ')}
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </header>
 
@@ -92,66 +120,142 @@ const Index = () => {
           ))}
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="animate-scale-in">
-          <TabsList className="grid w-full grid-cols-6 mb-8">
-            <TabsTrigger value="create" className="flex items-center gap-2">
-              <Icon name="Plus" size={16} />
-              Создание
-            </TabsTrigger>
-            <TabsTrigger value="analyze" className="flex items-center gap-2">
-              <Icon name="Search" size={16} />
-              Анализ
-            </TabsTrigger>
-            <TabsTrigger value="modify" className="flex items-center gap-2">
-              <Icon name="Wrench" size={16} />
-              Модификация
-            </TabsTrigger>
-            <TabsTrigger value="github" className="flex items-center gap-2">
-              <Icon name="Github" size={16} />
-              GitHub
-            </TabsTrigger>
-            <TabsTrigger value="test" className="flex items-center gap-2">
-              <Icon name="CheckCircle" size={16} />
-              Тестирование
-            </TabsTrigger>
-            <TabsTrigger value="docs" className="flex items-center gap-2">
-              <Icon name="FileText" size={16} />
-              Документация
-            </TabsTrigger>
-          </TabsList>
+        <div className="animate-scale-in">
+          <div className="flex flex-wrap gap-2 mb-8 border-b border-border">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
+                  activeTab === tab.id
+                    ? 'border-primary text-primary font-medium'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Icon name={tab.icon} size={16} />
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-          <TabsContent value="create" className="animate-fade-in">
-            <CreateProject aiModel={aiModel} language={language} />
-          </TabsContent>
+          <div className="animate-fade-in">
+            {activeTab === 'create' && (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center py-12">
+                    <Icon name="Plus" size={48} className="mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">Создание проекта</h3>
+                    <p className="text-muted-foreground mb-6">
+                      Опишите проект — агент сгенерирует полную структуру и код
+                    </p>
+                    <Button size="lg">
+                      <Icon name="Sparkles" className="mr-2" size={18} />
+                      Начать создание
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-          <TabsContent value="analyze" className="animate-fade-in">
-            <AnalyzeCode aiModel={aiModel} language={language} />
-          </TabsContent>
+            {activeTab === 'analyze' && (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center py-12">
+                    <Icon name="Search" size={48} className="mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">Анализ кода</h3>
+                    <p className="text-muted-foreground mb-6">
+                      Загрузите проект для глубокого анализа качества кода
+                    </p>
+                    <Button size="lg">
+                      <Icon name="Play" className="mr-2" size={18} />
+                      Запустить анализ
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-          <TabsContent value="modify" className="animate-fade-in">
-            <ModifyProject aiModel={aiModel} language={language} />
-          </TabsContent>
+            {activeTab === 'modify' && (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center py-12">
+                    <Icon name="Wrench" size={48} className="mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">Модификация проекта</h3>
+                    <p className="text-muted-foreground mb-6">
+                      Опишите изменения — агент модифицирует код автоматически
+                    </p>
+                    <Button size="lg">
+                      <Icon name="Edit" className="mr-2" size={18} />
+                      Начать модификацию
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-          <TabsContent value="github" className="animate-fade-in">
-            <GitHubIntegration language={language} />
-          </TabsContent>
+            {activeTab === 'github' && (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center py-12">
+                    <Icon name="Github" size={48} className="mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">GitHub Интеграция</h3>
+                    <p className="text-muted-foreground mb-6">
+                      Подключите GitHub для автоматической синхронизации кода
+                    </p>
+                    <Button size="lg">
+                      <Icon name="Link" className="mr-2" size={18} />
+                      Подключить GitHub
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-          <TabsContent value="test" className="animate-fade-in">
-            <TestingPanel aiModel={aiModel} language={language} />
-          </TabsContent>
+            {activeTab === 'test' && (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center py-12">
+                    <Icon name="CheckCircle" size={48} className="mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">Автоматическое тестирование</h3>
+                    <p className="text-muted-foreground mb-6">
+                      Агент создает и запускает тесты для вашего кода
+                    </p>
+                    <Button size="lg">
+                      <Icon name="Play" className="mr-2" size={18} />
+                      Запустить тесты
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-          <TabsContent value="docs" className="animate-fade-in">
-            <DocumentationPanel aiModel={aiModel} language={language} />
-          </TabsContent>
-        </Tabs>
+            {activeTab === 'docs' && (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center py-12">
+                    <Icon name="FileText" size={48} className="mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">Автоматическая документация</h3>
+                    <p className="text-muted-foreground mb-6">
+                      Агент генерирует и поддерживает документацию в актуальном состоянии
+                    </p>
+                    <Button size="lg">
+                      <Icon name="Sparkles" className="mr-2" size={18} />
+                      Сгенерировать документацию
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
       </main>
 
       <footer className="border-t border-border/40 mt-16">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className="flex items-center justify-between text-sm text-muted-foreground flex-wrap gap-4">
             <p>© 2026 AI Developer Agent. Автоматизация разработки ПО.</p>
             <div className="flex items-center gap-4">
-              <Badge variant="outline" className="gap-1">
+              <Badge variant="outline" className="gap-1 flex items-center">
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                 Система активна
               </Badge>
