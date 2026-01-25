@@ -15,6 +15,19 @@ const Index = () => {
   const [language, setLanguage] = useState('ru');
   const [aiModel, setAiModel] = useState(AI_MODELS[0].id);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+
+  const handleGitHubConnect = async () => {
+    setIsConnecting(true);
+    try {
+      const githubUrl = `https://github.com/login/oauth/authorize?client_id=Ov23liCl4I7JbP2Bt2Ob&scope=repo,workflow`;
+      window.location.href = githubUrl;
+    } catch (error) {
+      console.error('GitHub connection error:', error);
+    } finally {
+      setIsConnecting(false);
+    }
+  };
 
   const tabs = [
     { id: 'create', label: 'Создание', icon: 'Plus' },
@@ -147,9 +160,9 @@ const Index = () => {
                     <p className="text-muted-foreground mb-6">
                       Подключите GitHub для автоматической синхронизации кода
                     </p>
-                    <Button size="lg">
+                    <Button size="lg" onClick={handleGitHubConnect} disabled={isConnecting}>
                       <Icon name="Link" className="mr-2" size={18} />
-                      Подключить GitHub
+                      {isConnecting ? 'Подключение...' : 'Подключить GitHub'}
                     </Button>
                   </div>
                 </CardContent>
