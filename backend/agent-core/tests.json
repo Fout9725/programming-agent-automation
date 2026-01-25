@@ -1,0 +1,40 @@
+{
+  "tests": [
+    {
+      "name": "Interpret ecommerce query",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "interpret",
+        "user_query": "Создай интернет-магазин с корзиной и оплатой",
+        "project_id": "test-project-1"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "spec": {
+          "frontend": "object",
+          "backend": "object",
+          "database": "object"
+        },
+        "conflicts": "array",
+        "estimated_time": "number",
+        "estimated_cost": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Interpret simple landing query",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "interpret",
+        "user_query": "Создай лендинг с формой обратной связи"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "spec": "object"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
