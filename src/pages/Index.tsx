@@ -6,6 +6,9 @@ import Icon from '@/components/ui/icon';
 import { AI_MODELS } from '@/config/ai-models';
 import CreateProjectForm from '@/components/CreateProjectForm';
 import SettingsDialog from '@/components/SettingsDialog';
+import AgentArchitectureFlow from '@/components/AgentArchitectureFlow';
+import PlatformComparison from '@/components/PlatformComparison';
+import ExampleWorkflow from '@/components/ExampleWorkflow';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('create');
@@ -15,10 +18,10 @@ const Index = () => {
 
   const tabs = [
     { id: 'create', label: 'Создание', icon: 'Plus' },
-    { id: 'analyze', label: 'Анализ', icon: 'Search' },
-    { id: 'modify', label: 'Модификация', icon: 'Wrench' },
+    { id: 'architecture', label: 'Архитектура', icon: 'Layers' },
+    { id: 'comparison', label: 'Сравнение', icon: 'BarChart3' },
+    { id: 'workflow', label: 'Демо', icon: 'Play' },
     { id: 'github', label: 'GitHub', icon: 'Github' },
-    { id: 'test', label: 'Тестирование', icon: 'CheckCircle' },
     { id: 'docs', label: 'Документация', icon: 'FileText' },
   ];
 
@@ -123,40 +126,16 @@ const Index = () => {
               <CreateProjectForm aiModel={aiModel} language={language} />
             )}
 
-            {activeTab === 'analyze' && (
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center py-12">
-                    <Icon name="Search" size={48} className="mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">Анализ кода</h3>
-                    <p className="text-muted-foreground mb-6">
-                      Загрузите проект для глубокого анализа качества кода
-                    </p>
-                    <Button size="lg">
-                      <Icon name="Play" className="mr-2" size={18} />
-                      Запустить анализ
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+            {activeTab === 'architecture' && (
+              <AgentArchitectureFlow />
             )}
 
-            {activeTab === 'modify' && (
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center py-12">
-                    <Icon name="Wrench" size={48} className="mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">Модификация проекта</h3>
-                    <p className="text-muted-foreground mb-6">
-                      Опишите изменения — агент модифицирует код автоматически
-                    </p>
-                    <Button size="lg">
-                      <Icon name="Edit" className="mr-2" size={18} />
-                      Начать модификацию
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+            {activeTab === 'comparison' && (
+              <PlatformComparison />
+            )}
+
+            {activeTab === 'workflow' && (
+              <ExampleWorkflow />
             )}
 
             {activeTab === 'github' && (
@@ -171,24 +150,6 @@ const Index = () => {
                     <Button size="lg">
                       <Icon name="Link" className="mr-2" size={18} />
                       Подключить GitHub
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {activeTab === 'test' && (
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center py-12">
-                    <Icon name="CheckCircle" size={48} className="mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">Автоматическое тестирование</h3>
-                    <p className="text-muted-foreground mb-6">
-                      Агент создает и запускает тесты для вашего кода
-                    </p>
-                    <Button size="lg">
-                      <Icon name="Play" className="mr-2" size={18} />
-                      Запустить тесты
                     </Button>
                   </div>
                 </CardContent>
