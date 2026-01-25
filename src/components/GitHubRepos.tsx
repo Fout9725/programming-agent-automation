@@ -31,7 +31,7 @@ const GitHubRepos = () => {
 
     try {
       const response = await fetch(
-        'https://functions.poehali.dev/6cb1e090-32a3-474f-9932-72517de9ce04?action=repos',
+        'https://functions.poehali.dev/13b30b36-1da4-44b7-ae31-28c5ff1509a8?action=repos',
         {
           headers: {
             'Authorization': `Bearer ${token}`,
