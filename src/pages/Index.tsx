@@ -30,8 +30,7 @@ const Index = () => {
   const handleGitHubConnect = async () => {
     setIsConnecting(true);
     try {
-      const redirectUri = `${window.location.origin}/github/callback`;
-      const githubUrl = `https://github.com/login/oauth/authorize?client_id=Ov23liCl4I7JbP2Bt2Ob&scope=repo,workflow&redirect_uri=${encodeURIComponent(redirectUri)}`;
+      const githubUrl = `https://github.com/login/oauth/authorize?client_id=Ov23liCl4I7JbP2Bt2Ob&scope=repo,workflow`;
       window.location.href = githubUrl;
     } catch (error) {
       console.error('GitHub connection error:', error);
