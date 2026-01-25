@@ -9,6 +9,7 @@ import SettingsDialog from '@/components/SettingsDialog';
 import AgentArchitectureFlow from '@/components/AgentArchitectureFlow';
 import PlatformComparison from '@/components/PlatformComparison';
 import ExampleWorkflow from '@/components/ExampleWorkflow';
+import GitHubRepos from '@/components/GitHubRepos';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('create');
@@ -16,11 +17,21 @@ const Index = () => {
   const [aiModel, setAiModel] = useState(AI_MODELS[0].id);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [githubConnected, setGithubConnected] = useState(() => {
+    const connected = localStorage.getItem('github_connected') === 'true';
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    if (tab === 'github' && connected) {
+      setTimeout(() => setActiveTab('github'), 0);
+    }
+    return connected;
+  });
 
   const handleGitHubConnect = async () => {
     setIsConnecting(true);
     try {
-      const githubUrl = `https://github.com/login/oauth/authorize?client_id=Ov23liCl4I7JbP2Bt2Ob&scope=repo,workflow`;
+      const redirectUri = `${window.location.origin}/github/callback`;
+      const githubUrl = `https://github.com/login/oauth/authorize?client_id=Ov23liCl4I7JbP2Bt2Ob&scope=repo,workflow&redirect_uri=${encodeURIComponent(redirectUri)}`;
       window.location.href = githubUrl;
     } catch (error) {
       console.error('GitHub connection error:', error);
@@ -152,21 +163,25 @@ const Index = () => {
             )}
 
             {activeTab === 'github' && (
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center py-12">
-                    <Icon name="Github" size={48} className="mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">GitHub Интеграция</h3>
-                    <p className="text-muted-foreground mb-6">
-                      Подключите GitHub для автоматической синхронизации кода
-                    </p>
-                    <Button size="lg" onClick={handleGitHubConnect} disabled={isConnecting}>
-                      <Icon name="Link" className="mr-2" size={18} />
-                      {isConnecting ? 'Подключение...' : 'Подключить GitHub'}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              githubConnected ? (
+                <GitHubRepos />
+              ) : (
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center py-12">
+                      <Icon name="Github" size={48} className="mx-auto text-muted-foreground mb-4" />
+                      <h3 className="text-xl font-semibold mb-2">GitHub Интеграция</h3>
+                      <p className="text-muted-foreground mb-6">
+                        Подключите GitHub для автоматической синхронизации кода
+                      </p>
+                      <Button size="lg" onClick={handleGitHubConnect} disabled={isConnecting}>
+                        <Icon name="Link" className="mr-2" size={18} />
+                        {isConnecting ? 'Подключение...' : 'Подключить GitHub'}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
             )}
 
             {activeTab === 'docs' && (

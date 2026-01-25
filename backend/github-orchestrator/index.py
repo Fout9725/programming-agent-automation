@@ -2,6 +2,8 @@ import os
 import json
 import time
 import base64
+import urllib.parse
+import urllib.request
 from typing import Dict, List
 from pydantic import BaseModel
 
@@ -20,17 +22,24 @@ class PRRequest(BaseModel):
 def handler(event: dict, context) -> dict:
     """Автономная работа с GitHub: коммиты, PR, мерж, conflict resolution"""
     method = event.get('httpMethod', 'GET')
+    path = event.get('queryStringParameters', {}).get('action', '')
     
     if method == 'OPTIONS':
         return {
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-Authorization'
             },
             'body': ''
         }
+    
+    if method == 'GET' and path == 'callback':
+        return handle_oauth_callback(event)
+    
+    if method == 'GET' and path == 'repos':
+        return get_repositories(event)
     
     if method != 'POST':
         return {
@@ -210,3 +219,111 @@ def merge_trivial(base: str, incoming: str) -> str:
 def llm_resolve_conflict(base: str, incoming: str) -> str:
     """Использует LLM для разрешения нетривиальных конфликтов"""
     return incoming
+
+def handle_oauth_callback(event: dict) -> dict:
+    """Обработка OAuth callback от GitHub"""
+    params = event.get('queryStringParameters', {})
+    code = params.get('code')
+    
+    if not code:
+        return {
+            'statusCode': 400,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'No code provided'})
+        }
+    
+    client_id = 'Ov23liCl4I7JbP2Bt2Ob'
+    client_secret = os.environ.get('GITHUB_CLIENT_SECRET')
+    
+    if not client_secret:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'GITHUB_CLIENT_SECRET not configured'})
+        }
+    
+    token_url = 'https://github.com/login/oauth/access_token'
+    data = urllib.parse.urlencode({
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'code': code
+    }).encode()
+    
+    req = urllib.request.Request(token_url, data=data, headers={'Accept': 'application/json'})
+    
+    try:
+        with urllib.request.urlopen(req) as response:
+            result = json.loads(response.read())
+            access_token = result.get('access_token')
+            
+            if not access_token:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Failed to get access token'})
+                }
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'access_token': access_token,
+                    'token_type': result.get('token_type', 'bearer'),
+                    'scope': result.get('scope', '')
+                })
+            }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': str(e)})
+        }
+
+def get_repositories(event: dict) -> dict:
+    """Получение списка репозиториев пользователя"""
+    auth_header = event.get('headers', {}).get('X-Authorization', '')
+    token = auth_header.replace('Bearer ', '')
+    
+    if not token:
+        return {
+            'statusCode': 401,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'No authorization token provided'})
+        }
+    
+    api_url = 'https://api.github.com/user/repos?sort=updated&per_page=10'
+    req = urllib.request.Request(
+        api_url,
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Accept': 'application/vnd.github.v3+json',
+            'User-Agent': 'AI-Developer-Agent'
+        }
+    )
+    
+    try:
+        with urllib.request.urlopen(req) as response:
+            repos = json.loads(response.read())
+            
+            formatted_repos = [{
+                'name': repo['name'],
+                'full_name': repo['full_name'],
+                'url': repo['html_url'],
+                'description': repo.get('description', ''),
+                'language': repo.get('language', 'Unknown'),
+                'stars': repo['stargazers_count'],
+                'updated_at': repo['updated_at'],
+                'default_branch': repo['default_branch']
+            } for repo in repos]
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'repositories': formatted_repos})
+            }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': str(e)})
+        }
