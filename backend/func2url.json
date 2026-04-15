@@ -1,4 +1,9 @@
 {
+  "agent-deployer": "https://functions.poehali.dev/16c1448a-d3e7-4d8d-b731-62233340ad12",
+  "agent-backend-gen": "https://functions.poehali.dev/0c9ae86e-dc57-4359-bc02-6e42b56da19f",
+  "agent-frontend-gen": "https://functions.poehali.dev/e4a9e5af-e475-41a6-a5cc-6cea1a5b0fca",
+  "agent-db": "https://functions.poehali.dev/b5b1fae1-7449-4e58-a46a-d805f0a55fa6",
+  "agent-orchestrator": "https://functions.poehali.dev/cc5ecac6-d2e9-4ad0-aefb-cd92daf9e392",
   "github": "https://functions.poehali.dev/13b30b36-1da4-44b7-ae31-28c5ff1509a8",
   "agent-core": "https://functions.poehali.dev/9f6aa0df-0354-413d-8000-718edd1fd190",
   "github-orchestrator": "https://functions.poehali.dev/6cb1e090-32a3-474f-9932-72517de9ce04",

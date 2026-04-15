@@ -1,0 +1,37 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "GET returns 405",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 405
+    },
+    {
+      "name": "POST generate with minimal spec",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "generate",
+        "spec": {
+          "frontend": {
+            "pages": [{"path": "/", "name": "Home", "components": []}]
+          }
+        }
+      },
+      "expectedStatus": 200
+    },
+    {
+      "name": "POST unknown action",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "unknown"},
+      "expectedStatus": 400
+    }
+  ]
+}

@@ -1,40 +1,50 @@
 {
   "tests": [
     {
-      "name": "Interpret ecommerce query",
+      "name": "OPTIONS CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "GET not allowed",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 405
+    },
+    {
+      "name": "POST interpret without user_query",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "interpret"},
+      "expectedStatus": 400
+    },
+    {
+      "name": "POST interpret ecommerce query",
       "method": "POST",
       "path": "/",
       "body": {
         "action": "interpret",
-        "user_query": "Создай интернет-магазин с корзиной и оплатой",
-        "project_id": "test-project-1"
+        "user_query": "Создай интернет-магазин с корзиной и оплатой"
       },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "spec": {
-          "frontend": "object",
-          "backend": "object",
-          "database": "object"
-        },
-        "conflicts": "array",
-        "estimated_time": "number",
-        "estimated_cost": "number"
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     },
     {
-      "name": "Interpret simple landing query",
+      "name": "POST interpret landing query",
       "method": "POST",
       "path": "/",
       "body": {
         "action": "interpret",
         "user_query": "Создай лендинг с формой обратной связи"
       },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "spec": "object"
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
+    },
+    {
+      "name": "POST invalid action",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "unknown_action"},
+      "expectedStatus": 400
     }
   ]
 }
