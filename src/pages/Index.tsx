@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { AI_MODELS } from '@/config/ai-models';
 import CreateProjectForm from '@/components/CreateProjectForm';
-import SettingsDialog from '@/components/SettingsDialog';
+
 import AgentArchitectureFlow from '@/components/AgentArchitectureFlow';
 import PlatformComparison from '@/components/PlatformComparison';
 import ExampleWorkflow from '@/components/ExampleWorkflow';
@@ -15,7 +15,6 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState('create');
   const [language, setLanguage] = useState('ru');
   const [aiModel, setAiModel] = useState(AI_MODELS[0].id);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [githubConnected, setGithubConnected] = useState(() => {
     const connected = localStorage.getItem('github_connected') === 'true';
@@ -97,16 +96,10 @@ const Index = () => {
                     <option key={model.id} value={model.id}>{model.name}</option>
                   ))}
                 </optgroup>
-                <optgroup label="Бесплатные">
-                  {AI_MODELS.filter(m => m.category === 'free').map(model => (
-                    <option key={model.id} value={model.id}>{model.name}</option>
-                  ))}
-                </optgroup>
+
               </select>
 
-              <Button variant="outline" size="icon" onClick={() => setSettingsOpen(true)}>
-                <Icon name="Settings" size={18} />
-              </Button>
+
             </div>
           </div>
           
@@ -122,8 +115,6 @@ const Index = () => {
           )}
         </div>
       </header>
-
-      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
 
       <main className="container mx-auto px-4 py-8">
         <div className="animate-scale-in">

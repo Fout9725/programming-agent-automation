@@ -13,7 +13,7 @@
       "expectedStatus": 405
     },
     {
-      "name": "POST generate with empty spec",
+      "name": "POST generate empty",
       "method": "POST",
       "path": "/",
       "body": {"action": "generate", "spec": {"backend": {}}},

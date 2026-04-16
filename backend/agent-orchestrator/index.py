@@ -52,7 +52,7 @@ def handler(event, context):
 def start_build_pipeline(body):
     user_query = body.get('user_query', '')
     project_name = body.get('project_name', 'new-project')
-    ai_model = body.get('ai_model', 'anthropic/claude-sonnet-4')
+    ai_model = body.get('ai_model', 'deepseek/deepseek-v3.2-speciale-alt')
     language = body.get('language', 'ru')
     
     if not user_query:
